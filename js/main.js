@@ -125,7 +125,7 @@ atualizarBtnFlutuante();
   function avancar() { mostrarSlide(atual + 1); }
   function voltar()  { mostrarSlide(atual - 1); }
 
-  function iniciar() { intervalo = setInterval(avancar, 3500); }
+  function iniciar() { intervalo = setInterval(avancar, 6000); }
   function pausar()  { clearInterval(intervalo); }
 
   btnNext.addEventListener('click', () => { pausar(); avancar(); iniciar(); });
