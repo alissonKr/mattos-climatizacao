@@ -88,3 +88,58 @@ function atualizarBtnFlutuante() {
 
 window.addEventListener('scroll', atualizarBtnFlutuante, { passive: true });
 atualizarBtnFlutuante();
+
+// ============================================================
+// 6. CARROSSEL — auto-play, pausa no hover, loop infinito
+// ============================================================
+(function () {
+  const trilha      = document.getElementById('carrosselTrilha');
+  const container   = document.querySelector('.carrossel');
+  const btnPrev     = document.querySelector('.carrossel__btn--prev');
+  const btnNext     = document.querySelector('.carrossel__btn--next');
+  const wrapIndicadores = document.getElementById('carrosselIndicadores');
+
+  if (!trilha) return;
+
+  const slides    = trilha.querySelectorAll('.carrossel__slide');
+  const total     = slides.length;
+  let   atual     = 0;
+  let   intervalo = null;
+
+  // Cria bolinhas
+  slides.forEach((_, i) => {
+    const bolinha = document.createElement('button');
+    bolinha.className = 'carrossel__bolinha' + (i === 0 ? ' ativa' : '');
+    bolinha.setAttribute('role', 'tab');
+    bolinha.setAttribute('aria-label', `Ir para imagem ${i + 1}`);
+    bolinha.addEventListener('click', () => irPara(i));
+    wrapIndicadores.appendChild(bolinha);
+  });
+
+  const bolinhas = wrapIndicadores.querySelectorAll('.carrossel__bolinha');
+
+  function irPara(indice) {
+    atual = (indice + total) % total;
+    trilha.style.transform = `translateX(-${atual * 100}%)`;
+    bolinhas.forEach((b, i) => b.classList.toggle('ativa', i === atual));
+  }
+
+  function avancar() { irPara(atual + 1); }
+  function voltar()  { irPara(atual - 1); }
+
+  function iniciarAutoPlay() {
+    intervalo = setInterval(avancar, 3000);
+  }
+
+  function pausarAutoPlay() {
+    clearInterval(intervalo);
+  }
+
+  btnNext.addEventListener('click', () => { pausarAutoPlay(); avancar(); iniciarAutoPlay(); });
+  btnPrev.addEventListener('click', () => { pausarAutoPlay(); voltar();  iniciarAutoPlay(); });
+
+  container.addEventListener('mouseenter', pausarAutoPlay);
+  container.addEventListener('mouseleave', iniciarAutoPlay);
+
+  iniciarAutoPlay();
+})();
