@@ -90,56 +90,49 @@ window.addEventListener('scroll', atualizarBtnFlutuante, { passive: true });
 atualizarBtnFlutuante();
 
 // ============================================================
-// 6. CARROSSEL — auto-play, pausa no hover, loop infinito
+// 6. CARROSSEL — display block/none, auto-play, dots
 // ============================================================
 (function () {
-  const trilha      = document.getElementById('carrosselTrilha');
-  const container   = document.querySelector('.carrossel');
-  const btnPrev     = document.querySelector('.carrossel__btn--prev');
-  const btnNext     = document.querySelector('.carrossel__btn--next');
-  const wrapIndicadores = document.getElementById('carrosselIndicadores');
+  const container = document.querySelector('.carrossel-container');
+  if (!container) return;
 
-  if (!trilha) return;
-
-  const slides    = trilha.querySelectorAll('.carrossel__slide');
-  const total     = slides.length;
-  let   atual     = 0;
+  const slides  = container.querySelectorAll('.carrossel-slide');
+  const btnPrev = container.querySelector('.carrossel-btn.prev');
+  const btnNext = container.querySelector('.carrossel-btn.next');
+  const dotsWrap = container.querySelector('.carrossel-dots');
+  const total   = slides.length;
+  let   atual   = 0;
   let   intervalo = null;
 
-  // Cria bolinhas
+  // Cria dots dinamicamente
   slides.forEach((_, i) => {
-    const bolinha = document.createElement('button');
-    bolinha.className = 'carrossel__bolinha' + (i === 0 ? ' ativa' : '');
-    bolinha.setAttribute('role', 'tab');
-    bolinha.setAttribute('aria-label', `Ir para imagem ${i + 1}`);
-    bolinha.addEventListener('click', () => irPara(i));
-    wrapIndicadores.appendChild(bolinha);
+    const dot = document.createElement('span');
+    dot.className = 'dot' + (i === 0 ? ' ativo' : '');
+    dot.addEventListener('click', () => { pausar(); mostrarSlide(i); iniciar(); });
+    dotsWrap.appendChild(dot);
   });
 
-  const bolinhas = wrapIndicadores.querySelectorAll('.carrossel__bolinha');
+  const dots = dotsWrap.querySelectorAll('.dot');
 
-  function irPara(indice) {
-    atual = (indice + total) % total;
-    trilha.style.transform = `translateX(-${atual * 100}%)`;
-    bolinhas.forEach((b, i) => b.classList.toggle('ativa', i === atual));
+  function mostrarSlide(index) {
+    slides.forEach(s => s.classList.remove('ativo'));
+    dots.forEach(d => d.classList.remove('ativo'));
+    atual = (index + total) % total;
+    slides[atual].classList.add('ativo');
+    dots[atual].classList.add('ativo');
   }
 
-  function avancar() { irPara(atual + 1); }
-  function voltar()  { irPara(atual - 1); }
+  function avancar() { mostrarSlide(atual + 1); }
+  function voltar()  { mostrarSlide(atual - 1); }
 
-  function iniciarAutoPlay() {
-    intervalo = setInterval(avancar, 3000);
-  }
+  function iniciar() { intervalo = setInterval(avancar, 3500); }
+  function pausar()  { clearInterval(intervalo); }
 
-  function pausarAutoPlay() {
-    clearInterval(intervalo);
-  }
+  btnNext.addEventListener('click', () => { pausar(); avancar(); iniciar(); });
+  btnPrev.addEventListener('click', () => { pausar(); voltar();  iniciar(); });
 
-  btnNext.addEventListener('click', () => { pausarAutoPlay(); avancar(); iniciarAutoPlay(); });
-  btnPrev.addEventListener('click', () => { pausarAutoPlay(); voltar();  iniciarAutoPlay(); });
+  container.addEventListener('mouseenter', pausar);
+  container.addEventListener('mouseleave', iniciar);
 
-  container.addEventListener('mouseenter', pausarAutoPlay);
-  container.addEventListener('mouseleave', iniciarAutoPlay);
-
-  iniciarAutoPlay();
+  iniciar();
 })();
