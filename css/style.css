@@ -76,6 +76,7 @@ a {
 .header__logo {
   height: 50px;
   width: auto;
+  object-fit: contain;
 }
 
 .header__nome {
