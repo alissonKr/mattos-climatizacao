@@ -561,11 +561,16 @@ a {
 
   /* Hero */
   .hero__titulo {
-    font-size: 2rem;
+    font-size: 2rem; /* 32px */
   }
 
   .hero__subtitulo {
     font-size: 1rem;
+  }
+
+  /* Serviços: força coluna única garantida */
+  .servicos__grid {
+    grid-template-columns: 1fr;
   }
 
   /* Atendimento lista em 1 coluna */
@@ -577,5 +582,60 @@ a {
   .contato__canais {
     flex-direction: column;
     align-items: center;
+  }
+
+  /* Padding reduzido nas seções */
+  .servicos,
+  .sobre,
+  .atendimento,
+  .contato {
+    padding: 56px 16px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVO — MOBILE PEQUENO (< 480px)
+   ============================================================ */
+@media (max-width: 479px) {
+  .hero__titulo {
+    font-size: 1.625rem; /* 26px */
+  }
+
+  .hero__subtitulo {
+    font-size: 0.9rem;
+  }
+
+  .hero {
+    padding: 90px 16px 48px;
+  }
+
+  .hero__btn-whatsapp {
+    padding: 13px 24px;
+    font-size: 0.9rem;
+  }
+
+  .servicos,
+  .sobre,
+  .atendimento,
+  .contato {
+    padding: 40px 12px;
+  }
+
+  .servicos__titulo,
+  .sobre__titulo,
+  .atendimento__titulo,
+  .contato__titulo {
+    font-size: 1.5rem;
+  }
+
+  .header__nome {
+    font-size: 1rem;
+  }
+
+  .whatsapp-flutuante {
+    bottom: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
   }
 }
