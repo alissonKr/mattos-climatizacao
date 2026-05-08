@@ -90,49 +90,59 @@ window.addEventListener('scroll', atualizarBtnFlutuante, { passive: true });
 atualizarBtnFlutuante();
 
 // ============================================================
-// 6. CARROSSEL — display block/none, auto-play, dots
+// 6. COVERFLOW 3D
 // ============================================================
 (function () {
-  const container = document.querySelector('.carrossel-container');
-  if (!container) return;
+  const track = document.querySelector('.coverflow-track');
+  if (!track) return;
 
-  const slides  = container.querySelectorAll('.carrossel-slide');
-  const btnPrev = container.querySelector('.carrossel-btn.prev');
-  const btnNext = container.querySelector('.carrossel-btn.next');
-  const dotsWrap = container.querySelector('.carrossel-dots');
-  const total   = slides.length;
-  let   atual   = 0;
-  let   intervalo = null;
+  const slides = Array.from(track.querySelectorAll('.cf-slide'));
+  const total  = slides.length;
+  let currentIndex = 0;
+  let dragStartX = null;
 
-  // Cria dots dinamicamente
-  slides.forEach((_, i) => {
-    const dot = document.createElement('span');
-    dot.className = 'dot' + (i === 0 ? ' ativo' : '');
-    dot.addEventListener('click', () => { pausar(); mostrarSlide(i); iniciar(); });
-    dotsWrap.appendChild(dot);
-  });
-
-  const dots = dotsWrap.querySelectorAll('.dot');
-
-  function mostrarSlide(index) {
-    slides.forEach(s => s.classList.remove('ativo'));
-    dots.forEach(d => d.classList.remove('ativo'));
-    atual = (index + total) % total;
-    slides[atual].classList.add('ativo');
-    dots[atual].classList.add('ativo');
+  function updateCoverflow() {
+    slides.forEach((slide, i) => {
+      slide.classList.remove('ativo', 'lado-1-esq', 'lado-1-dir', 'lado-2-esq', 'lado-2-dir', 'oculto');
+      const diff = i - currentIndex;
+      if (diff === 0)       slide.classList.add('ativo');
+      else if (diff === -1) slide.classList.add('lado-1-esq');
+      else if (diff === 1)  slide.classList.add('lado-1-dir');
+      else if (diff === -2) slide.classList.add('lado-2-esq');
+      else if (diff === 2)  slide.classList.add('lado-2-dir');
+      else                  slide.classList.add('oculto');
+    });
   }
 
-  function avancar() { mostrarSlide(atual + 1); }
-  function voltar()  { mostrarSlide(atual - 1); }
+  slides.forEach((slide, i) => {
+    slide.addEventListener('click', () => {
+      if (i !== currentIndex) {
+        currentIndex = i;
+        updateCoverflow();
+      }
+    });
+  });
 
-  function iniciar() { intervalo = setInterval(avancar, 6000); }
-  function pausar()  { clearInterval(intervalo); }
+  track.addEventListener('mousedown', e => { dragStartX = e.clientX; });
+  track.addEventListener('mousemove', e => { if (dragStartX !== null) e.preventDefault(); });
+  track.addEventListener('mouseup', e => {
+    if (dragStartX === null) return;
+    const delta = e.clientX - dragStartX;
+    dragStartX = null;
+    if (delta > 80 && currentIndex > 0)             { currentIndex--; updateCoverflow(); }
+    else if (delta < -80 && currentIndex < total - 1) { currentIndex++; updateCoverflow(); }
+  });
+  track.addEventListener('mouseleave', () => { dragStartX = null; });
 
-  btnNext.addEventListener('click', () => { pausar(); avancar(); iniciar(); });
-  btnPrev.addEventListener('click', () => { pausar(); voltar();  iniciar(); });
+  track.addEventListener('touchstart', e => { dragStartX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchmove',  e => { e.preventDefault(); }, { passive: false });
+  track.addEventListener('touchend',   e => {
+    if (dragStartX === null) return;
+    const delta = e.changedTouches[0].clientX - dragStartX;
+    dragStartX = null;
+    if (delta > 80 && currentIndex > 0)             { currentIndex--; updateCoverflow(); }
+    else if (delta < -80 && currentIndex < total - 1) { currentIndex++; updateCoverflow(); }
+  });
 
-  container.addEventListener('mouseenter', pausar);
-  container.addEventListener('mouseleave', iniciar);
-
-  iniciar();
+  updateCoverflow();
 })();
