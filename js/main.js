@@ -106,7 +106,7 @@ function updateCoverflow() {
       slide.style.zIndex = '0';
       return;
     }
-    const translateX = offset * 500;
+    const translateX = offset * 600;
     const rotateY = offset * -40;
     const scale = absOffset === 0 ? 1 : absOffset === 1 ? 0.78 : 0.58;
     const opacity = absOffset === 0 ? 1 : absOffset === 1 ? 0.7 : 0.4;
