@@ -94,33 +94,30 @@ atualizarBtnFlutuante();
 // ============================================================
 const slides = document.querySelectorAll('.cf-slide');
 const cover = document.getElementById('coverflow');
+let current = 0;
+let dragStartX = null;
 
-if (cover && slides.length) {
-  let current = 0;
-  let dragStartX = null;
+function updateCoverflow() {
+  slides.forEach((slide, i) => {
+    const offset = i - current;
+    const absOffset = Math.abs(offset);
+    if (absOffset > 3) {
+      slide.style.opacity = '0';
+      slide.style.zIndex = '0';
+      return;
+    }
+    const translateX = offset * 220;
+    const rotateY = offset * -40;
+    const scale = absOffset === 0 ? 1 : absOffset === 1 ? 0.78 : 0.58;
+    const opacity = absOffset === 0 ? 1 : absOffset === 1 ? 0.7 : 0.4;
+    const zIndex = 10 - absOffset;
+    slide.style.transform = `translateX(${translateX}px) rotateY(${rotateY}deg) scale(${scale})`;
+    slide.style.opacity = opacity;
+    slide.style.zIndex = zIndex;
+  });
+}
 
-  function updateCoverflow() {
-    slides.forEach((slide, i) => {
-      const offset = i - current;
-      const absOffset = Math.abs(offset);
-      if (absOffset > 3) {
-        slide.style.opacity = '0';
-        slide.style.pointerEvents = 'none';
-        slide.style.zIndex = '0';
-        return;
-      }
-      const translateX = offset * 200;
-      const rotateY = offset * -40;
-      const scale = absOffset === 0 ? 1 : absOffset === 1 ? 0.78 : 0.58;
-      const opacity = absOffset === 0 ? 1 : absOffset === 1 ? 0.7 : 0.4;
-      const zIndex = 10 - absOffset;
-      slide.style.transform = `translateX(${translateX}px) rotateY(${rotateY}deg) scale(${scale})`;
-      slide.style.opacity = opacity;
-      slide.style.zIndex = zIndex;
-      slide.style.pointerEvents = 'auto';
-    });
-  }
-
+if (cover) {
   cover.addEventListener('mousedown', e => { dragStartX = e.clientX; cover.style.cursor = 'grabbing'; });
   cover.addEventListener('mouseup', e => {
     if (dragStartX === null) return;
@@ -141,6 +138,5 @@ if (cover && slides.length) {
     dragStartX = null;
     updateCoverflow();
   });
-
   updateCoverflow();
 }
