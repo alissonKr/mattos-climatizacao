@@ -92,57 +92,55 @@ atualizarBtnFlutuante();
 // ============================================================
 // 6. COVERFLOW 3D
 // ============================================================
-(function () {
-  const track = document.querySelector('.coverflow-track');
-  if (!track) return;
+const slides = document.querySelectorAll('.cf-slide');
+const cover = document.getElementById('coverflow');
 
-  const slides = Array.from(track.querySelectorAll('.cf-slide'));
-  const total  = slides.length;
-  let currentIndex = 0;
+if (cover && slides.length) {
+  let current = 0;
   let dragStartX = null;
 
   function updateCoverflow() {
     slides.forEach((slide, i) => {
-      slide.classList.remove('ativo', 'lado-1-esq', 'lado-1-dir', 'lado-2-esq', 'lado-2-dir', 'oculto');
-      const diff = i - currentIndex;
-      if (diff === 0)       slide.classList.add('ativo');
-      else if (diff === -1) slide.classList.add('lado-1-esq');
-      else if (diff === 1)  slide.classList.add('lado-1-dir');
-      else if (diff === -2) slide.classList.add('lado-2-esq');
-      else if (diff === 2)  slide.classList.add('lado-2-dir');
-      else                  slide.classList.add('oculto');
+      const offset = i - current;
+      const absOffset = Math.abs(offset);
+      if (absOffset > 3) {
+        slide.style.opacity = '0';
+        slide.style.pointerEvents = 'none';
+        slide.style.zIndex = '0';
+        return;
+      }
+      const translateX = offset * 200;
+      const rotateY = offset * -40;
+      const scale = absOffset === 0 ? 1 : absOffset === 1 ? 0.78 : 0.58;
+      const opacity = absOffset === 0 ? 1 : absOffset === 1 ? 0.7 : 0.4;
+      const zIndex = 10 - absOffset;
+      slide.style.transform = `translateX(${translateX}px) rotateY(${rotateY}deg) scale(${scale})`;
+      slide.style.opacity = opacity;
+      slide.style.zIndex = zIndex;
+      slide.style.pointerEvents = 'auto';
     });
   }
 
-  slides.forEach((slide, i) => {
-    slide.addEventListener('click', () => {
-      if (i !== currentIndex) {
-        currentIndex = i;
-        updateCoverflow();
-      }
-    });
-  });
-
-  track.addEventListener('mousedown', e => { dragStartX = e.clientX; });
-  track.addEventListener('mousemove', e => { if (dragStartX !== null) e.preventDefault(); });
-  track.addEventListener('mouseup', e => {
+  cover.addEventListener('mousedown', e => { dragStartX = e.clientX; cover.style.cursor = 'grabbing'; });
+  cover.addEventListener('mouseup', e => {
     if (dragStartX === null) return;
-    const delta = e.clientX - dragStartX;
+    const delta = dragStartX - e.clientX;
+    if (delta > 60 && current < slides.length - 1) current++;
+    else if (delta < -60 && current > 0) current--;
     dragStartX = null;
-    if (delta > 80 && currentIndex > 0)             { currentIndex--; updateCoverflow(); }
-    else if (delta < -80 && currentIndex < total - 1) { currentIndex++; updateCoverflow(); }
+    cover.style.cursor = 'grab';
+    updateCoverflow();
   });
-  track.addEventListener('mouseleave', () => { dragStartX = null; });
-
-  track.addEventListener('touchstart', e => { dragStartX = e.touches[0].clientX; }, { passive: true });
-  track.addEventListener('touchmove',  e => { e.preventDefault(); }, { passive: false });
-  track.addEventListener('touchend',   e => {
+  cover.addEventListener('mouseleave', () => { dragStartX = null; cover.style.cursor = 'grab'; });
+  cover.addEventListener('touchstart', e => { dragStartX = e.touches[0].clientX; }, { passive: true });
+  cover.addEventListener('touchend', e => {
     if (dragStartX === null) return;
-    const delta = e.changedTouches[0].clientX - dragStartX;
+    const delta = dragStartX - e.changedTouches[0].clientX;
+    if (delta > 50 && current < slides.length - 1) current++;
+    else if (delta < -50 && current > 0) current--;
     dragStartX = null;
-    if (delta > 80 && currentIndex > 0)             { currentIndex--; updateCoverflow(); }
-    else if (delta < -80 && currentIndex < total - 1) { currentIndex++; updateCoverflow(); }
+    updateCoverflow();
   });
 
   updateCoverflow();
-})();
+}
